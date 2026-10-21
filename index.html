@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="非エンジニアが2時間・全10章・確認問題20問で、PHPのコードを「読める」ようになる入門教材。">
+<title>はじめてのPHP</title>
+<style>
+/* レイアウト：左揃えの1カラム教材。章ごとに背景を交互にし、各章の最後に確認問題と読了ボタン */
+:root{
+  --text:#1c2433; --muted:#566170; --bg:#ffffff; --sub:#f3f6f4; --line:#dfe6e1;
+  --green:#1f5c46; --green-ink:#ffffff; --pale:#e4efe9; --orange:#b4621f; --orange-pale:#fbefe4;
+  --ok:#1f7a4d; --ng:#b3261e; --focus:#f0b429;
+  --code-bg:#17241f; --code-fg:#e3efe8; --code-c:#8fb3a2; --code-s:#f2c48d;
+  --font:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Noto Sans Mono",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --text:#e6ece8; --muted:#a6b3ac; --bg:#121815; --sub:#18201c; --line:#2b3630; --green:#5fb896; --green-ink:#0d1512; --pale:#1f3329;
+  --orange:#e39a5c; --orange-pale:#33261b; --ok:#5fc490; --ng:#f08a80;
+  --code-bg:#0b110e; --code-fg:#dbe8e0; --code-c:#7f9f90; --code-s:#eab984; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --text:#e6ece8; --muted:#a6b3ac; --bg:#121815; --sub:#18201c; --line:#2b3630; --green:#5fb896; --green-ink:#0d1512; --pale:#1f3329;
+  --orange:#e39a5c; --orange-pale:#33261b; --ok:#5fc490; --ng:#f08a80;
+  --code-bg:#0b110e; --code-fg:#dbe8e0; --code-c:#7f9f90; --code-s:#eab984; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{font-family:var(--font);color:var(--text);background:var(--bg);font-size:16.5px;line-height:1.85;line-break:strict;overflow-wrap:anywhere}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.read{max-width:46rem}
+.skip{position:absolute;left:-999px;top:8px;background:var(--green);color:var(--green-ink);padding:8px 14px;border-radius:6px;z-index:20}
+.skip:focus{left:16px}
+
+/* ヘッダー */
+header.site{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--line)}
+header.site .wrap{height:60px;display:flex;align-items:center;gap:20px}
+.logo{font-weight:800;text-decoration:none;color:var(--text);white-space:nowrap}.logo span{color:var(--green);font-family:var(--mono)}
+header nav{display:flex;gap:20px;font-size:.9rem;margin-left:auto}
+header nav a{color:var(--muted);text-decoration:none}header nav a:hover{color:var(--green)}
+.meter{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.meter i{display:block;width:80px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.meter i b{display:block;height:100%;width:0;background:var(--green);transition:width .3s}
+@media(max-width:820px){header nav .opt{display:none}}
+@media(max-width:480px){.meter i{width:48px}header nav{gap:14px}}
+
+/* ボタン */
+.btn{display:inline-block;padding:.72em 1.4em;border-radius:8px;font-weight:700;text-decoration:none;border:0;font:inherit;font-weight:700;cursor:pointer;line-height:1.5}
+.btn-p{background:var(--green);color:var(--green-ink)}.btn-s{background:var(--pale);color:var(--green)}
+.btn-p:hover{filter:brightness(1.08)}
+
+/* ファーストビュー */
+.hero{padding-block:64px 56px}
+.pill{display:inline-block;background:var(--pale);color:var(--green);font-size:.85rem;font-weight:700;padding:4px 12px;border-radius:999px}
+h1{font-size:clamp(2.1rem,1rem + 2.6vw,3.1rem);line-height:1.3;margin:.5em 0;letter-spacing:-.01em;word-break:auto-phrase;text-wrap:balance}
+h1 em{font-style:normal;color:var(--orange)}
+.lead{max-width:38em;color:var(--muted)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.try{margin-top:40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:16px;align-items:stretch}
+.arrow{align-self:center;color:var(--orange);font-weight:800;font-size:1.3rem}
+@media(max-width:760px){.try{grid-template-columns:minmax(0,1fr)}.arrow{transform:rotate(90deg);justify-self:center}}
+.box{border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:0;background:var(--bg)}
+.box h3{margin:0;font-size:.78rem;letter-spacing:.06em;padding:8px 14px;background:var(--sub);color:var(--muted);font-weight:700}
+.box .res{padding:16px;font-size:1.1rem;font-weight:700}
+
+/* 数字の帯 */
+.stats{border-block:1px solid var(--line)}
+.stats ul{list-style:none;margin:0;padding:28px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:640px){.stats ul{grid-template-columns:repeat(2,1fr)}}
+.stats b{display:block;font-size:2.2rem;line-height:1.2;color:var(--green);font-variant-numeric:tabular-nums}
+.stats span{font-size:.9rem;color:var(--muted)}
+
+/* 共通セクション */
+section.band{padding-block:clamp(3rem,2rem + 3vw,5rem)}
+.alt{background:var(--sub)}
+.label{font-size:.78rem;letter-spacing:.08em;color:var(--green);font-weight:700}
+h2{font-size:clamp(1.55rem,1.2rem + 1.2vw,2rem);line-height:1.4;margin:.2em 0 .9em;word-break:auto-phrase;text-wrap:balance}
+h3{font-size:1.15rem;line-height:1.5;margin:2em 0 .6em}
+p{margin:0 0 1em}
+
+/* 読者別の入口 */
+.entries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media(max-width:860px){.entries{grid-template-columns:minmax(0,1fr)}}
+.entry{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.entry .who{font-size:.8rem;font-weight:700;color:var(--orange);letter-spacing:.04em}
+.entry h3{margin:0;font-size:1.12rem}
+.entry ul{margin:0;padding-left:1.2em;font-size:.93rem}
+.entry .time{font-size:.85rem;color:var(--muted);margin-top:auto;padding-top:6px;border-top:1px dashed var(--line)}
+.entry .btn{align-self:flex-start;font-size:.92rem}
+
+/* 悩み→解決 */
+.pairs{display:grid;gap:12px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:16px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:16px 20px;background:var(--bg)}
+.pair .q{color:var(--muted)}.pair .a{font-weight:700}.pair .arrow{font-size:1rem}
+@media(max-width:700px){.pair{grid-template-columns:minmax(0,1fr)}.pair .arrow{transform:rotate(90deg);justify-self:start}}
+
+/* 学習の流れ＋目次 */
+.steps{display:grid;gap:14px}
+.step{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:18px 20px;display:grid;grid-template-columns:7em minmax(0,1fr);gap:16px}
+@media(max-width:640px){.step{grid-template-columns:minmax(0,1fr);gap:6px}}
+.step > b{color:var(--green);font-size:.95rem}
+.step .t{color:var(--muted);font-size:.85rem;font-weight:400;display:block}
+.step h3{margin:0 0 6px;font-size:1.05rem}
+.step ol{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.step li a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--text);padding:4px 0}
+.step li a:hover .ttl{color:var(--green);text-decoration:underline}
+.step li .no{font-family:var(--mono);font-size:.85rem;color:var(--muted);width:2.4em;flex:none}
+.step li .ttl{flex:1}
+.step li .min{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.step li .chk{width:1.2em;flex:none;color:var(--ok);font-weight:800}
+
+/* 章 */
+.chapter{padding-block:clamp(3rem,2rem + 3vw,5rem);border-top:1px solid var(--line)}
+.chapter:nth-of-type(even){background:var(--sub)}
+.ch-head{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+.ch-no{font-family:var(--mono);font-weight:800;color:var(--green);font-size:.95rem}
+.ch-time{font-size:.8rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 10px;background:var(--bg)}
+.goal{background:var(--pale);border-radius:8px;padding:14px 18px;margin:0 0 1.6em;font-size:.95rem}
+.goal b{color:var(--green)}
+pre.code{margin:1em 0;padding:16px 18px;background:var(--code-bg);color:var(--code-fg);border-radius:8px;font:14.5px/1.75 var(--mono);overflow-x:auto;white-space:pre;overflow-wrap:normal}
+pre.code .c{color:var(--code-c)}pre.code .s{color:var(--code-s)}
+pre.code .fn{display:block;font-size:.75rem;color:var(--code-c);margin-bottom:8px;letter-spacing:.04em}
+.output{border:1px solid var(--line);border-left:4px solid var(--green);background:var(--bg);border-radius:6px;padding:10px 16px;margin:-.3em 0 1.2em;font-size:.95rem}
+.output small{display:block;font-size:.72rem;color:var(--muted);letter-spacing:.06em;font-weight:700}
+code{font-family:var(--mono);font-size:.92em;background:var(--pale);padding:.05em .35em;border-radius:4px}
+.tip{border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:1.2em 0;background:var(--bg);font-size:.95rem}
+.tip > b:first-child{display:block;color:var(--orange);font-size:.82rem;letter-spacing:.04em}
+.tip.warn{background:var(--orange-pale);border-color:transparent}
+.tbl{overflow-x:auto;margin:1em 0}
+table{border-collapse:collapse;width:100%;font-size:.93rem;background:var(--bg)}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:var(--sub);font-weight:700;white-space:nowrap}
+td code{white-space:nowrap}
+
+/* 確認問題 */
+.quiz{border:1px solid var(--line);border-radius:10px;padding:20px;margin:1.6em 0;background:var(--bg)}
+.quiz .qh{font-size:.78rem;font-weight:700;letter-spacing:.06em;color:var(--orange)}
+.quiz .qt{font-weight:700;margin:.3em 0 .6em}
+.quiz pre.code{margin:.4em 0 .9em}
+.choices{display:grid;gap:8px}
+.choices button{font:inherit;text-align:left;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--sub);color:var(--text);cursor:pointer;display:flex;gap:10px}
+.choices button:hover:not(:disabled){border-color:var(--green)}
+.choices button .k{font-family:var(--mono);color:var(--muted);flex:none}
+.choices button.right{border-color:var(--ok);background:var(--pale);font-weight:700}
+.choices button.wrong{border-color:var(--ng)}
+.choices button:disabled{cursor:default}
+.explain{margin-top:12px;padding:12px 16px;border-radius:8px;background:var(--sub);font-size:.95rem}
+.explain b.okm{color:var(--ok)}.explain b.ngm{color:var(--ng)}
+.retry{font:inherit;font-size:.85rem;background:none;border:0;color:var(--green);text-decoration:underline;cursor:pointer;padding:0;margin-top:6px}
+
+.summary{border-top:2px solid var(--green);padding-top:14px;margin-top:2em}
+.summary ul{margin:.3em 0 0;padding-left:1.2em}
+.ch-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:1.8em}
+.done-btn[aria-pressed="true"]{background:var(--pale);color:var(--ok)}
+
+/* プロンプト例 */
+.prompt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:.6em 0;background:var(--bg)}
+.prompt p{margin:0;flex:1;min-width:0;font-size:.95rem}
+.copy{font:inherit;font-size:.8rem;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--sub);color:var(--text);cursor:pointer;flex:none}
+
+/* 用語集 */
+dl.glossary{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr);margin:0;border-top:1px solid var(--line)}
+dl.glossary dt,dl.glossary dd{margin:0;padding:12px 8px;border-bottom:1px solid var(--line)}
+dl.glossary dt{font-weight:700}
+@media(max-width:600px){dl.glossary{grid-template-columns:minmax(0,1fr)}dl.glossary dt{border-bottom:0;padding-bottom:0}}
+
+.closing{text-align:left}
+footer{border-top:1px solid var(--line);padding-block:32px;font-size:.85rem;color:var(--muted)}
+footer p{margin:.3em 0}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">本文へ移動</a>
+<header class="site"><div class="wrap">
+  <a class="logo" href="#top"><span>&lt;?php</span> はじめてのPHP</a>
+  <nav aria-label="主なメニュー">
+    <a href="#flow">目次</a><a class="opt" href="#entry">どこから読む？</a><a class="opt" href="#glossary">用語集</a>
+  </nav>
+  <div class="meter" title="読み終えた章の数"><i><b id="meterBar"></b></i><span id="meterText">0/10章</span></div>
+</div></header>
+
+<main id="main">
+<section class="wrap hero" id="top">
+  <span class="pill">所要2時間・予備知識ゼロでOK</span>
+  <h1>見て、予想して、<br>答え合わせ。<br><em>PHPは読める。</em></h1>
+  <p class="lead">PHP（ピー・エイチ・ピー）は、WordPressやネットショップ、社内システムの裏側で動いているプログラミング言語です。この教材では、コードを書けるようになるのではなく、エンジニアやAIが書いたPHPを読んで「何をしているか」が分かるところを目指します。各章にある「このコードは何を表示する？」という問題に、予想してから答え合わせをしていきます。</p>
+  <div class="actions"><a class="btn btn-p" href="#ch1">第1章から始める</a><a class="btn btn-s" href="#flow">10章の目次を見る</a></div>
+  <div class="try" aria-label="コードと表示結果の例">
+    <div class="box"><h3>コード</h3><pre class="code" style="margin:0;border-radius:0">$name = <span class="s">"山田"</span>;
+echo <span class="s">"こんにちは、"</span> . $name . <span class="s">"さん"</span>;</pre></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="box"><h3>表示される結果</h3><div class="res">こんにちは、山田さん</div></div>
+  </div>
+</section>
+
+<div class="stats"><div class="wrap"><ul>
+  <li><b>10</b><span>章（1章10〜15分）</span></li>
+  <li><b>120</b><span>分で全体を一周</span></li>
+  <li><b>20</b><span>問の確認問題</span></li>
+  <li><b>18</b><span>語の用語集つき</span></li>
+</ul></div></div>
+
+<section class="band alt" id="entry"><div class="wrap">
+  <div class="label">どこから読む？</div>
+  <h2>あなたは、<br>どれに近いですか？</h2>
+  <div class="entries">
+    <div class="entry"><div class="who">はじめて学ぶ人</div><h3>基礎から順番に、全部読む</h3>
+      <ul><li>PHPがどこで動いているか</li><li>変数・条件分岐・ループの読み方</li><li>フォームと安全対策の考え方</li></ul>
+      <div class="time">目安：120分（第1〜10章）</div><a class="btn btn-p" href="#ch1">第1章から読む</a></div>
+    <div class="entry"><div class="who">時間がない人</div><h3>要点の6章だけ読む</h3>
+      <ul><li>仕組み（第1・2章）</li><li>変数と条件分岐（第3・5章）</li><li>フォームと安全対策（第8・9章）</li></ul>
+      <div class="time">目安：75分（第1・2・3・5・8・9章）</div><a class="btn btn-s" href="#ch1">要点コースを始める</a></div>
+    <div class="entry"><div class="who">AIが書いたコードを確かめたい人</div><h3>安全対策と総まとめを先に</h3>
+      <ul><li>危ないコードの見分け方</li><li>実際のコードを1行ずつ読む</li><li>AIへの質問のしかた</li></ul>
+      <div class="time">目安：20分（第9・10章）→ 分からない所だけ戻る</div><a class="btn btn-s" href="#ch9">第9章から読む</a></div>
+  </div>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="label">この教材で解決できること</div>
+  <h2>こんな悩みは<br>ありませんか？</h2>
+  <div class="pairs">
+    <div class="pair"><div class="q">エンジニアの「PHPのここを直します」という説明が分からない</div><div class="arrow" aria-hidden="true">→</div><div class="a">コードの基本の形が分かり、何を直すのか想像できる</div></div>
+    <div class="pair"><div class="q">AIにPHPを書いてもらったが、正しいのか判断できない</div><div class="arrow" aria-hidden="true">→</div><div class="a">最低限確認すべき3つの点（第9・10章）が分かる</div></div>
+    <div class="pair"><div class="q">WordPressのテーマを触るとき、PHPファイルが怖い</div><div class="arrow" aria-hidden="true">→</div><div class="a">「&lt;?php」から始まる部分の意味が読めるようになる</div></div>
+  </div>
+</div></section>
+
+<section class="band alt" id="flow"><div class="wrap">
+  <div class="label">学習の流れ・目次</div>
+  <h2>4つのステップで、<br>2時間。</h2>
+  <div class="steps" id="toc">
+    <div class="step"><b>STEP 1<span class="t">20分</span></b><div><h3>PHPがどこで、どう動くかを知る</h3><ol data-chs="1,2"></ol></div></div>
+    <div class="step"><b>STEP 2<span class="t">40分</span></b><div><h3>変数・計算・条件分岐を読む</h3><ol data-chs="3,4,5"></ol></div></div>
+    <div class="step"><b>STEP 3<span class="t">25分</span></b><div><h3>配列・ループ・関数を読む</h3><ol data-chs="6,7"></ol></div></div>
+    <div class="step"><b>STEP 4<span class="t">35分</span></b><div><h3>フォームと安全対策、総まとめ</h3><ol data-chs="8,9,10"></ol></div></div>
+  </div>
+  <p style="margin-top:1.2em;font-size:.9rem;color:var(--muted)">各章の最後にある「この章を読み終えた」を押すと、目次に印が付きます。記録はお使いのブラウザの中だけに保存されます。</p>
+</div></section>
+
+<!-- ===== 第1章 ===== -->
+<section class="chapter" id="ch1" data-ch="1" data-title="PHPとは何か" data-min="10"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 01</span><span class="ch-time">約10分</span></div>
+  <h2>PHPとは何か</h2>
+  <p class="goal"><b>この章のゴール：</b>PHPが「どこで」「何のために」使われているかを、自分の言葉で説明できる。</p>
+  <p>PHPは、Webサイトを動かすためのプログラミング言語です。1995年に生まれ、今もサーバー側（後述）の言語が分かっているWebサイトのうち、約7割で使われているとされます。世界のWebサイトの4割以上を占めるWordPressも、PHPで作られています。</p>
+  <h3>身近なところで動いているPHP</h3>
+  <ul>
+    <li>ネットショップの「カートに入れる」「注文を確定する」</li>
+    <li>会社サイトの「お問い合わせフォーム」</li>
+    <li>会員サイトの「ログイン」</li>
+    <li>WordPressで作られたブログやお知らせページ</li>
+  </ul>
+  <h3>レストランにたとえると</h3>
+  <p>Webページを見る流れは、レストランでの注文によく似ています。</p>
+  <div class="tbl"><table>
+    <tr><th>レストラン</th><th>Webの世界</th><th>説明</th></tr>
+    <tr><td>お客さん</td><td>ブラウザ</td><td>ChromeやSafariなど。ページを「注文」する側</td></tr>
+    <tr><td>厨房</td><td>サーバー</td><td>インターネットの向こうにある、ページを作って返すコンピューター</td></tr>
+    <tr><td>料理人とレシピ</td><td>PHP</td><td>注文に応じて、その場でページを組み立てる</td></tr>
+    <tr><td>出来上がった料理</td><td>HTML</td><td>ブラウザに届く完成品のページ</td></tr>
+  </table></div>
+  <p>ポイントは、<b>PHPは厨房（サーバー）で動き、お客さん（ブラウザ）には完成品だけが届く</b>ということです。同じページでも、ログインした人の名前や今日の日付などを、PHPがその都度組み立てています。</p>
+  <div class="tip"><b>補足</b>ブラウザの中で動く言語にはJavaScript（ジャバスクリプト）があります。「PHPは厨房、JavaScriptは客席で動く」と覚えておくと、エンジニアの会話が分かりやすくなります。</div>
+  <div class="quiz" data-q="1a"></div>
+  <div class="quiz" data-q="1b"></div>
+  <div class="summary"><b>まとめ</b><ul><li>PHPはサーバーで動き、Webページをその場で組み立てる言語</li><li>ブラウザに届くのは、組み立て後のHTMLだけ</li><li>WordPressやお問い合わせフォームなど、身近なところで使われている</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第2章 ===== -->
+<section class="chapter" id="ch2" data-ch="2" data-title="PHPが画面を作る仕組み" data-min="10"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 02</span><span class="ch-time">約10分</span></div>
+  <h2>PHPが画面を作る仕組み</h2>
+  <p class="goal"><b>この章のゴール：</b>PHPファイルの「どこからどこまでがPHPか」を見分けられる。</p>
+  <p>PHPのファイルは、名前の最後が <code>.php</code> になっています（例：<code>contact.php</code>）。中身は、普通のHTML（ページの見た目を書く言語）の中に、PHPの命令を埋め込んだ形をしています。</p>
+  <pre class="code"><span class="fn">news.php</span>&lt;h1&gt;本日のお知らせ&lt;/h1&gt;
+&lt;p&gt;今日は &lt;?php echo date(<span class="s">"Y年n月j日"</span>); ?&gt; です。&lt;/p&gt;</pre>
+  <div class="output"><small>ブラウザに表示される結果（例）</small>本日のお知らせ<br>今日は 2026年10月22日 です。</div>
+  <h3>読み方の3つのルール</h3>
+  <div class="tbl"><table>
+    <tr><th>書き方</th><th>意味</th></tr>
+    <tr><td><code>&lt;?php</code> 〜 <code>?&gt;</code></td><td>この間がPHP。外側は普通のHTML。ファイル全体がPHPのときは、最後の <code>?&gt;</code> を省略することが多い</td></tr>
+    <tr><td><code>echo</code></td><td>「画面に表示する」という命令。PHPで最もよく見る言葉</td></tr>
+    <tr><td><code>;</code>（セミコロン）</td><td>命令の終わり。日本語の「。」に当たる。付け忘れるとエラーになる</td></tr>
+  </table></div>
+  <p>サーバーはこのファイルを上から順に読み、<code>&lt;?php</code> の部分だけを実行して、結果の文字に置き換えます。そのためブラウザに届くのは「今日は 2026年10月22日 です。」というHTMLだけで、PHPのコードそのものは届きません。</p>
+  <h3>メモ書き（コメント）</h3>
+  <p>コードの中には、人間向けのメモが書かれていることがあります。これを<b>コメント</b>と呼び、実行されません。読むときの大きな手がかりになります。</p>
+  <pre class="code"><span class="c">// 1行のメモはスラッシュ2本から</span>
+<span class="c">/* 複数行のメモは
+   この記号で囲む */</span>
+echo <span class="s">"こんにちは"</span>; <span class="c">// 行の途中から書くこともできる</span></pre>
+  <div class="quiz" data-q="2a"></div>
+  <div class="quiz" data-q="2b"></div>
+  <div class="summary"><b>まとめ</b><ul><li><code>&lt;?php</code> から先がPHP。<code>echo</code> は「表示する」</li><li>命令の終わりには <code>;</code> を付ける</li><li><code>//</code> や <code>/* */</code> はメモ（コメント）で、実行されない</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第3章 ===== -->
+<section class="chapter" id="ch3" data-ch="3" data-title="変数とデータの種類" data-min="15"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 03</span><span class="ch-time">約15分</span></div>
+  <h2>変数とデータの種類</h2>
+  <p class="goal"><b>この章のゴール：</b><code>$</code> の付いた言葉が「値を入れた箱」だと分かり、中身の種類を見分けられる。</p>
+  <p>PHPでは、<code>$</code>（ドル記号）で始まる言葉を<b>変数</b>と呼びます。変数は、名前の付いた箱のようなものです。<code>=</code> は「等しい」ではなく、<b>右の値を左の箱に入れる</b>という意味です。</p>
+  <pre class="code"><span class="c">// 請求書1枚分の情報を、箱に入れておく</span>
+$customer = <span class="s">"株式会社サガ商事"</span>;  <span class="c">// 取引先名</span>
+$amount   = 50000;             <span class="c">// 請求金額</span>
+$taxRate  = 0.1;               <span class="c">// 消費税率</span>
+$isPaid   = false;             <span class="c">// 入金済みか</span>
+
+echo $customer;</pre>
+  <div class="output"><small>表示される結果</small>株式会社サガ商事</div>
+  <p>Excelにたとえると、変数は「名前を付けたセル」です。セルに名前を付けておけば、あとから <code>=請求金額*消費税率</code> のように使えるのと同じです。</p>
+  <h3>中身の種類（データ型）</h3>
+  <div class="tbl"><table>
+    <tr><th>種類</th><th>例</th><th>見分け方</th></tr>
+    <tr><td>文字列</td><td><code>"株式会社サガ商事"</code></td><td><code>" "</code> か <code>' '</code> で囲まれている</td></tr>
+    <tr><td>整数</td><td><code>50000</code></td><td>囲まれていない、小数点のない数</td></tr>
+    <tr><td>小数</td><td><code>0.1</code></td><td>小数点のある数</td></tr>
+    <tr><td>真偽値</td><td><code>true</code> / <code>false</code></td><td>「はい／いいえ」の2択</td></tr>
+    <tr><td>null</td><td><code>null</code></td><td>「何も入っていない」ことを表す</td></tr>
+  </table></div>
+  <div class="tip warn"><b>つまずきやすい点</b><code>"100"</code> と <code>100</code> は別物です。引用符で囲むと「文字としての100」になります。CSVから読み込んだ金額が文字列のままになっていて、並べ替えがおかしくなる、という不具合はよくあります。</div>
+  <h3>箱の中身は入れ替えられる</h3>
+  <p>同じ変数に新しい値を入れると、前の値は消えて上書きされます。</p>
+  <pre class="code">$status = <span class="s">"未入金"</span>;
+$status = <span class="s">"入金済み"</span>;
+echo $status;  <span class="c">// → 入金済み</span></pre>
+  <div class="quiz" data-q="3a"></div>
+  <div class="quiz" data-q="3b"></div>
+  <div class="summary"><b>まとめ</b><ul><li><code>$</code> で始まるのが変数（値を入れる箱）</li><li><code>=</code> は「右の値を左に入れる」</li><li>引用符で囲まれていれば文字列。<code>"100"</code> と <code>100</code> は別物</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第4章 ===== -->
+<section class="chapter" id="ch4" data-ch="4" data-title="計算と文字のつなぎ方" data-min="10"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 04</span><span class="ch-time">約10分</span></div>
+  <h2>計算と文字のつなぎ方</h2>
+  <p class="goal"><b>この章のゴール：</b>金額計算のコードを読み、表示される結果を予想できる。</p>
+  <h3>計算の記号</h3>
+  <div class="tbl"><table>
+    <tr><th>記号</th><th>意味</th><th>例</th><th>結果</th></tr>
+    <tr><td><code>+</code></td><td>足し算</td><td><code>100 + 20</code></td><td>120</td></tr>
+    <tr><td><code>-</code></td><td>引き算</td><td><code>100 - 20</code></td><td>80</td></tr>
+    <tr><td><code>*</code></td><td>掛け算</td><td><code>100 * 3</code></td><td>300</td></tr>
+    <tr><td><code>/</code></td><td>割り算</td><td><code>100 / 4</code></td><td>25</td></tr>
+    <tr><td><code>%</code></td><td>割った余り</td><td><code>10 % 3</code></td><td>1</td></tr>
+  </table></div>
+  <h3>文字をつなぐのは「.」</h3>
+  <p>PHPでは、文字と文字をつなぐときに <code>.</code>（ドット）を使います。Excelの <code>&amp;</code> と同じ役割です。<code>+</code> ではない点に注意してください。</p>
+  <pre class="code">$price    = 12000;            <span class="c">// 単価</span>
+$qty      = 3;                <span class="c">// 数量</span>
+$subtotal = $price * $qty;    <span class="c">// 小計 36000</span>
+$tax      = $subtotal * 0.1;  <span class="c">// 消費税 3600</span>
+
+echo <span class="s">"合計："</span> . number_format($subtotal + $tax) . <span class="s">"円"</span>;</pre>
+  <div class="output"><small>表示される結果</small>合計：39,600円</div>
+  <p><code>number_format</code> は、数字に3桁ごとのカンマを付ける命令です。このように、PHPにはよく使う処理があらかじめ用意されています（第7章で詳しく扱います）。</p>
+  <h3>引用符の中に変数を書く方法</h3>
+  <p>ダブルクォート <code>" "</code> の中に変数を書くと、中身に置き換えてくれます。シングルクォート <code>' '</code> では置き換わりません。</p>
+  <pre class="code">$name = <span class="s">"山田"</span>;
+echo <span class="s">"担当：{$name}"</span>;  <span class="c">// → 担当：山田</span>
+echo <span class="s">'担当：{$name}'</span>;  <span class="c">// → 担当：{$name}（そのまま表示）</span></pre>
+  <div class="tip warn"><b>経理の方へ：小数の計算には誤差が出る</b>コンピューターは小数を正確に扱えないことがあり、<code>0.1 + 0.2</code> がわずかに <code>0.3</code> からずれます。そのため金額は「円単位の整数」で計算し、端数処理を明示するのが基本です。<code>floor</code>（切り捨て）、<code>round</code>（四捨五入）、<code>ceil</code>（切り上げ）という命令がよく使われます。</div>
+  <div class="quiz" data-q="4a"></div>
+  <div class="quiz" data-q="4b"></div>
+  <div class="summary"><b>まとめ</b><ul><li>計算は <code>+ - * / %</code>。文字をつなぐのは <code>.</code></li><li><code>" "</code> の中の変数は中身に置き換わる</li><li>金額は整数で扱い、端数処理を明示する</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第5章 ===== -->
+<section class="chapter" id="ch5" data-ch="5" data-title="条件分岐で処理を分ける" data-min="15"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 05</span><span class="ch-time">約15分</span></div>
+  <h2>条件分岐で処理を分ける</h2>
+  <p class="goal"><b>この章のゴール：</b><code>if</code> の文を「もし〜なら、〜する」と日本語に置き換えて読める。</p>
+  <p>プログラムの多くは「条件によって処理を変える」ことでできています。そのための書き方が <code>if</code>（もし）です。Excelの <code>IF関数</code> と考え方は同じです。</p>
+  <pre class="code"><span class="c">// 購入金額によって送料を決める</span>
+if ($total &gt;= 10000) {
+    $shipping = 0;      <span class="c">// 1万円以上なら送料無料</span>
+} elseif ($total &gt;= 5000) {
+    $shipping = 300;    <span class="c">// 5千円以上なら300円</span>
+} else {
+    $shipping = 500;    <span class="c">// それ以外は500円</span>
+}</pre>
+  <p>日本語に置き換えると、こうなります。</p>
+  <ul>
+    <li><code>if (条件) { … }</code>：もし条件に当てはまるなら、<code>{ }</code> の中を実行する</li>
+    <li><code>elseif (条件) { … }</code>：そうでなくて、この条件に当てはまるなら</li>
+    <li><code>else { … }</code>：どれにも当てはまらないなら</li>
+  </ul>
+  <p>上から順に調べ、最初に当てはまったところだけを実行します。<code>{ }</code>（波かっこ）は「ここからここまでが1つのまとまり」という印です。</p>
+  <h3>比べるための記号</h3>
+  <div class="tbl"><table>
+    <tr><th>記号</th><th>意味</th></tr>
+    <tr><td><code>==</code></td><td>等しい（種類の違いは大目に見る）</td></tr>
+    <tr><td><code>===</code></td><td>種類まで含めて完全に等しい（こちらが安全）</td></tr>
+    <tr><td><code>!=</code>、<code>!==</code></td><td>等しくない</td></tr>
+    <tr><td><code>&gt;</code>、<code>&gt;=</code></td><td>より大きい、以上</td></tr>
+    <tr><td><code>&lt;</code>、<code>&lt;=</code></td><td>より小さい、以下</td></tr>
+    <tr><td><code>&amp;&amp;</code></td><td>かつ（両方当てはまる）</td></tr>
+    <tr><td><code>||</code></td><td>または（どちらかが当てはまる）</td></tr>
+    <tr><td><code>!</code></td><td>〜ではない（反対にする）</td></tr>
+  </table></div>
+  <div class="tip warn"><b>つまずきやすい点</b><code>=</code> は「入れる」、<code>==</code> と <code>===</code> は「比べる」です。<code>if ($a = 5)</code> と書くと比べずに5を入れてしまい、いつも条件に当てはまる不具合になります。</div>
+  <pre class="code"><span class="c">// 「かつ」を使った例：未入金で、期限を過ぎていたら督促</span>
+if ($isPaid === false &amp;&amp; $today &gt; $dueDate) {
+    echo <span class="s">"督促メールを送る対象です"</span>;
+}</pre>
+  <div class="quiz" data-q="5a"></div>
+  <div class="quiz" data-q="5b"></div>
+  <div class="summary"><b>まとめ</b><ul><li><code>if / elseif / else</code> は「もし／そうでなくもし／それ以外」</li><li>上から調べ、最初に当てはまった所だけ実行</li><li><code>=</code> は入れる、<code>===</code> は比べる</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第6章 ===== -->
+<section class="chapter" id="ch6" data-ch="6" data-title="配列とループ" data-min="15"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 06</span><span class="ch-time">約15分</span></div>
+  <h2>配列とループで、<br>まとめて処理する</h2>
+  <p class="goal"><b>この章のゴール：</b>一覧データ（配列）と、それを1件ずつ処理する <code>foreach</code> を読める。</p>
+  <h3>配列：複数の値をまとめた箱</h3>
+  <p>変数には1つの値しか入りませんが、<b>配列</b>には複数の値を順番に並べて入れられます。<code>[ ]</code>（角かっこ）で囲み、カンマで区切ります。</p>
+  <pre class="code">$items = [<span class="s">"コピー用紙"</span>, <span class="s">"ボールペン"</span>, <span class="s">"クリアファイル"</span>];
+
+echo $items[0];  <span class="c">// → コピー用紙</span>
+echo $items[2];  <span class="c">// → クリアファイル</span>
+echo count($items);  <span class="c">// → 3（件数を数える）</span></pre>
+  <div class="tip warn"><b>つまずきやすい点</b>配列の番号は<b>0から</b>数えます。1件目が <code>[0]</code>、2件目が <code>[1]</code> です。</div>
+  <h3>連想配列：名前で取り出せる配列</h3>
+  <p>番号の代わりに名前（キー）を付けて値を入れることもできます。これを<b>連想配列</b>と呼びます。Excelの1行に、列見出しが付いているイメージです。</p>
+  <pre class="code">$invoice = [
+    <span class="s">"no"</span>       =&gt; <span class="s">"INV-0012"</span>,
+    <span class="s">"customer"</span> =&gt; <span class="s">"株式会社サガ商事"</span>,
+    <span class="s">"amount"</span>   =&gt; 50000,
+];
+
+echo $invoice[<span class="s">"customer"</span>];  <span class="c">// → 株式会社サガ商事</span></pre>
+  <p><code>=&gt;</code> は「この名前に、この値」という対応を表します。</p>
+  <h3>foreach：1件ずつ順番に処理する</h3>
+  <p>配列の中身を1件ずつ取り出して、同じ処理を繰り返すのが <code>foreach</code>（それぞれについて）です。このような繰り返しを<b>ループ</b>と呼びます。</p>
+  <pre class="code">$sales = [120000, 98000, 143000];  <span class="c">// 3か月分の売上</span>
+$sum = 0;
+
+foreach ($sales as $s) {
+    $sum = $sum + $s;  <span class="c">// 1件ずつ足していく</span>
+}
+
+echo number_format($sum) . <span class="s">"円"</span>;</pre>
+  <div class="output"><small>表示される結果</small>361,000円</div>
+  <p><code>foreach ($sales as $s)</code> は「<code>$sales</code> の中身を1件ずつ <code>$s</code> という箱に入れて、<code>{ }</code> の中を繰り返す」と読みます。3件あれば3回繰り返します。Excelで列の合計を出すSUM関数を、手順として書いたものと考えると分かりやすいでしょう。</p>
+  <div class="tip"><b>補足</b>ほかに <code>for</code> や <code>while</code> という繰り返しの書き方もあります。どれも「<code>{ }</code> の中を何度も実行する」点は同じです。</div>
+  <div class="quiz" data-q="6a"></div>
+  <div class="quiz" data-q="6b"></div>
+  <div class="summary"><b>まとめ</b><ul><li>配列は <code>[ ]</code> で複数の値をまとめたもの。番号は0から</li><li>連想配列は <code>"名前" =&gt; 値</code> で、名前で取り出せる</li><li><code>foreach</code> は1件ずつ取り出して繰り返す</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第7章 ===== -->
+<section class="chapter" id="ch7" data-ch="7" data-title="関数" data-min="10"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 07</span><span class="ch-time">約10分</span></div>
+  <h2>関数：処理に名前を付けて<br>使い回す</h2>
+  <p class="goal"><b>この章のゴール：</b><code>function</code> で作られた処理の「入力」と「出力」を読み取れる。</p>
+  <p><b>関数</b>とは、決まった処理に名前を付けたものです。材料を渡すと、加工した結果を返してくれる「小さな機械」と考えてください。Excelの <code>SUM</code> や <code>ROUND</code> も関数です。</p>
+  <h3>最初から用意されている関数</h3>
+  <div class="tbl"><table>
+    <tr><th>関数</th><th>働き</th><th>例 → 結果</th></tr>
+    <tr><td><code>number_format</code></td><td>3桁ごとにカンマ</td><td><code>number_format(1234567)</code> → 1,234,567</td></tr>
+    <tr><td><code>count</code></td><td>配列の件数</td><td><code>count([5, 8, 2])</code> → 3</td></tr>
+    <tr><td><code>round</code></td><td>四捨五入</td><td><code>round(2.5)</code> → 3</td></tr>
+    <tr><td><code>floor</code></td><td>切り捨て</td><td><code>floor(2.9)</code> → 2</td></tr>
+    <tr><td><code>date</code></td><td>日付や時刻</td><td><code>date("Y-m-d")</code> → 2026-10-22</td></tr>
+    <tr><td><code>mb_strlen</code></td><td>日本語の文字数</td><td><code>mb_strlen("経理部")</code> → 3</td></tr>
+  </table></div>
+  <h3>自分で関数を作る</h3>
+  <pre class="code"><span class="c">// 税込金額を求める関数（1円未満は切り捨て）</span>
+function withTax($price) {
+    return floor($price * 110 / 100);
+}
+
+echo withTax(1980);  <span class="c">// → 2178</span>
+echo withTax(500);   <span class="c">// → 550</span></pre>
+  <div class="tbl"><table>
+    <tr><th>部分</th><th>意味</th></tr>
+    <tr><td><code>function withTax</code></td><td>「withTax」という名前の関数を作る</td></tr>
+    <tr><td><code>($price)</code></td><td>受け取る材料。<b>引数</b>（ひきすう）と呼ぶ</td></tr>
+    <tr><td><code>return …</code></td><td>結果を返す。返された値を<b>戻り値</b>と呼ぶ</td></tr>
+    <tr><td><code>withTax(1980)</code></td><td>作った関数に1980を渡して使う</td></tr>
+  </table></div>
+  <p><code>$price * 1.1</code> ではなく <code>$price * 110 / 100</code> と書いているのは、第4章で触れた小数の誤差を避けるためです。こうした工夫がコメントに書かれていることも多いので、注目してみてください。</p>
+  <div class="tip"><b>補足：フレームワーク</b>実際の開発では、Laravel（ララベル）などの<b>フレームワーク</b>（よく使う関数や仕組みをまとめた土台）を使うことがほとんどです。見慣れない関数があっても、「何かを受け取って、何かを返す機械」と考えれば読み進められます。</div>
+  <div class="quiz" data-q="7a"></div>
+  <div class="quiz" data-q="7b"></div>
+  <div class="summary"><b>まとめ</b><ul><li>関数は「材料（引数）を受け取り、結果（戻り値）を返す」機械</li><li><code>return</code> が結果を返す場所</li><li>知らない関数は、名前と使われ方から働きを推測する</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第8章 ===== -->
+<section class="chapter" id="ch8" data-ch="8" data-title="フォームの受け取り" data-min="15"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 08</span><span class="ch-time">約15分</span></div>
+  <h2>フォームの受け取り：<br>お問い合わせ画面の裏側</h2>
+  <p class="goal"><b>この章のゴール：</b>入力された値がPHPにどう届くかを説明できる。</p>
+  <p>PHPがもっとも活躍するのは、利用者が入力した内容を受け取って処理する場面です。お問い合わせフォームを例に見てみましょう。</p>
+  <h3>1. 入力画面（HTML）</h3>
+  <pre class="code"><span class="fn">form.html</span>&lt;form method=<span class="s">"post"</span> action=<span class="s">"contact.php"</span>&gt;
+  会社名：&lt;input name=<span class="s">"company"</span>&gt;
+  メール：&lt;input name=<span class="s">"email"</span>&gt;
+  &lt;button&gt;送信する&lt;/button&gt;
+&lt;/form&gt;</pre>
+  <ul>
+    <li><code>action="contact.php"</code>：送信したら contact.php に届ける</li>
+    <li><code>method="post"</code>：送り方（後述）</li>
+    <li><code>name="company"</code>：この入力欄に付けた名前。PHP側はこの名前で受け取る</li>
+  </ul>
+  <h3>2. 受け取る側（PHP）</h3>
+  <pre class="code"><span class="fn">contact.php</span>&lt;?php
+$company = $_POST[<span class="s">"company"</span>] ?? <span class="s">""</span>;
+
+if ($company === <span class="s">""</span>) {
+    echo <span class="s">"会社名を入力してください"</span>;
+} else {
+    echo $company . <span class="s">" 様、送信ありがとうございました"</span>;
+}</pre>
+  <div class="tbl"><table>
+    <tr><th>部分</th><th>意味</th></tr>
+    <tr><td><code>$_POST["company"]</code></td><td>フォームの「company」欄に入力された値。<code>$_POST</code> はPHPが自動で用意する連想配列</td></tr>
+    <tr><td><code>?? ""</code></td><td>値が送られてこなかったときは、空の文字 <code>""</code> を使う</td></tr>
+    <tr><td><code>if ($company === "")</code></td><td>空なら注意を表示する（入力チェック）</td></tr>
+  </table></div>
+  <h3>POSTとGET：2つの送り方</h3>
+  <div class="tbl"><table>
+    <tr><th></th><th>POST（<code>$_POST</code>）</th><th>GET（<code>$_GET</code>）</th></tr>
+    <tr><td>送り方</td><td>見えない形で送る</td><td>URLの後ろに付けて送る<br>例：<code>list.php?page=2</code></td></tr>
+    <tr><td>使う場面</td><td>問い合わせ、ログイン、注文など</td><td>検索、ページ送り、絞り込みなど</td></tr>
+    <tr><td>注意</td><td>パスワードや個人情報はこちら</td><td>URLが履歴に残るので秘密の情報は送らない</td></tr>
+  </table></div>
+  <div class="tip warn"><b>実はこのコードには問題があります</b>上の contact.php は、入力された会社名をそのまま画面に表示しています。悪意のある人が会社名の欄にプログラムを書き込むと、それが画面上で動いてしまいます。どう直すかは、次の第9章で説明します。</div>
+  <div class="quiz" data-q="8a"></div>
+  <div class="quiz" data-q="8b"></div>
+  <div class="summary"><b>まとめ</b><ul><li>入力欄の <code>name</code> の名前で、PHP側が値を受け取る</li><li>POSTは見えない送り方、GETはURLに付ける送り方</li><li>入力された値は、そのまま信用して使ってはいけない</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第9章 ===== -->
+<section class="chapter" id="ch9" data-ch="9" data-title="安全対策の基本" data-min="10"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 09</span><span class="ch-time">約10分</span></div>
+  <h2>安全対策の基本：<br>入力は信用しない</h2>
+  <p class="goal"><b>この章のゴール：</b>PHPのコードで「危ない書き方」を3つ見分けられる。</p>
+  <p>Webサイトは世界中の誰でも使えます。そのため、入力欄には悪意のある文字が入ってくる前提で作る必要があります。PHPでよく問題になるのは、次の3つです。</p>
+
+  <h3>1. 入力をそのまま表示する（XSS）</h3>
+  <p>入力された値をそのまま <code>echo</code> すると、そこにプログラムが仕込まれていた場合、ほかの利用者の画面で動いてしまいます。これを<b>XSS</b>（クロスサイト・スクリプティング）と呼びます。</p>
+  <pre class="code"><span class="c">// 危ない：入力をそのまま表示</span>
+echo $_POST[<span class="s">"company"</span>];
+
+<span class="c">// 安全：htmlspecialchars で無害な文字に変えてから表示</span>
+echo htmlspecialchars($_POST[<span class="s">"company"</span>], ENT_QUOTES, <span class="s">"UTF-8"</span>);</pre>
+  <p><code>htmlspecialchars</code> は、<code>&lt;</code> などプログラムとして働く記号を、ただの文字として表示されるように変換する関数です。<b>利用者が入力したものを表示するときは必ず通す</b>、と覚えてください。</p>
+
+  <h3>2. データベースへの命令を文字のつなぎ合わせで作る（SQLインジェクション）</h3>
+  <p>会員情報や請求データは<b>データベース</b>（大量のデータを保存・検索する仕組み）に保存され、<b>SQL</b>（エスキューエル）という命令文で出し入れします。このSQLを入力値とつなぎ合わせて作ると、命令文そのものを書き換えられ、データを盗まれたり消されたりします。</p>
+  <pre class="code"><span class="c">// 危ない：入力値をSQLに直接つなげている</span>
+$sql = <span class="s">"SELECT * FROM customers WHERE name = '"</span> . $_POST[<span class="s">"name"</span>] . <span class="s">"'"</span>;
+
+<span class="c">// 安全：? の場所に、あとから値を当てはめる（プリペアドステートメント）</span>
+$stmt = $pdo-&gt;prepare(<span class="s">"SELECT * FROM customers WHERE name = ?"</span>);
+$stmt-&gt;execute([$_POST[<span class="s">"name"</span>]]);</pre>
+  <p>見分け方は簡単です。<b>SQLの文の中に <code>.</code> で <code>$_POST</code> や <code>$_GET</code> がつながれていたら危険</b>、<code>prepare</code> と <code>?</code> を使っていれば安全な書き方です。</p>
+
+  <h3>3. パスワードをそのまま保存する</h3>
+  <pre class="code"><span class="c">// 危ない：入力されたパスワードをそのまま保存</span>
+$saved = $_POST[<span class="s">"password"</span>];
+
+<span class="c">// 安全：元に戻せない形に変換して保存</span>
+$saved = password_hash($_POST[<span class="s">"password"</span>], PASSWORD_DEFAULT);</pre>
+  <p>万一データが漏れても元のパスワードが分からないよう、<code>password_hash</code> で変換して保存します。</p>
+
+  <div class="tbl"><table>
+    <tr><th>危ない書き方</th><th>安全な書き方</th></tr>
+    <tr><td>入力値をそのまま <code>echo</code></td><td><code>htmlspecialchars</code> を通して表示</td></tr>
+    <tr><td>SQLに入力値を <code>.</code> でつなぐ</td><td><code>prepare</code> と <code>?</code> を使う</td></tr>
+    <tr><td>パスワードをそのまま保存</td><td><code>password_hash</code> で変換して保存</td></tr>
+  </table></div>
+  <div class="tip"><b>補足</b>このほか、エラーの詳しい内容を利用者の画面に出さない、PHP本体を古いまま使わない（サポートが切れた版は修正が届かない）、といった点も大切です。</div>
+  <div class="quiz" data-q="9a"></div>
+  <div class="quiz" data-q="9b"></div>
+  <div class="summary"><b>まとめ</b><ul><li>入力を表示するときは <code>htmlspecialchars</code></li><li>SQLは <code>prepare</code> と <code>?</code> で組み立てる</li><li>パスワードは <code>password_hash</code> で変換して保存</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<!-- ===== 第10章 ===== -->
+<section class="chapter" id="ch10" data-ch="10" data-title="総まとめ：実際のコードを読む" data-min="10"><div class="wrap read">
+  <div class="ch-head"><span class="ch-no">CHAPTER 10</span><span class="ch-time">約10分</span></div>
+  <h2>総まとめ：<br>実際のコードを読んでみる</h2>
+  <p class="goal"><b>この章のゴール：</b>これまでの知識を組み合わせて、20行ほどのコードの動きを説明できる。</p>
+  <p>未入金の請求だけを一覧にして、合計を表示するプログラムです。まず自分で読んでみて、何が表示されるか予想してください。</p>
+  <pre class="code"><span class="fn">unpaid.php</span>&lt;?php
+<span class="c">// 請求データ（本来はデータベースから取り出す）</span>
+$invoices = [
+    [<span class="s">"customer"</span> =&gt; <span class="s">"サガ商事"</span>,   <span class="s">"amount"</span> =&gt; 50000, <span class="s">"paid"</span> =&gt; true],
+    [<span class="s">"customer"</span> =&gt; <span class="s">"有明フーズ"</span>, <span class="s">"amount"</span> =&gt; 32000, <span class="s">"paid"</span> =&gt; false],
+    [<span class="s">"customer"</span> =&gt; <span class="s">"唐津工業"</span>,   <span class="s">"amount"</span> =&gt; 78000, <span class="s">"paid"</span> =&gt; false],
+];
+
+<span class="c">// 金額を「50,000円」の形にする関数</span>
+function yen($n) {
+    return number_format($n) . <span class="s">"円"</span>;
+}
+
+$unpaid = 0;
+foreach ($invoices as $inv) {
+    if ($inv[<span class="s">"paid"</span>] === false) {
+        $unpaid = $unpaid + $inv[<span class="s">"amount"</span>];
+        echo htmlspecialchars($inv[<span class="s">"customer"</span>]) . <span class="s">"："</span> . yen($inv[<span class="s">"amount"</span>]) . <span class="s">"&lt;br&gt;"</span>;
+    }
+}
+echo <span class="s">"未入金の合計："</span> . yen($unpaid);</pre>
+  <details class="tip"><summary style="cursor:pointer;font-weight:700">1行ずつの解説を開く</summary>
+  <div class="tbl"><table>
+    <tr><th>部分</th><th>読み方</th><th>章</th></tr>
+    <tr><td><code>$invoices = [ … ]</code></td><td>請求3件を、連想配列の配列として入れる。表の3行分にあたる</td><td>3・6</td></tr>
+    <tr><td><code>function yen($n)</code></td><td>数字を受け取り、カンマと「円」を付けて返す関数を作る</td><td>4・7</td></tr>
+    <tr><td><code>$unpaid = 0;</code></td><td>未入金の合計を入れる箱を0で用意する</td><td>3</td></tr>
+    <tr><td><code>foreach ($invoices as $inv)</code></td><td>請求を1件ずつ <code>$inv</code> に入れて繰り返す（3回）</td><td>6</td></tr>
+    <tr><td><code>if ($inv["paid"] === false)</code></td><td>入金済みでない請求だけ、中の処理をする</td><td>5</td></tr>
+    <tr><td><code>$unpaid = $unpaid + …</code></td><td>その請求の金額を合計に足す</td><td>4</td></tr>
+    <tr><td><code>echo htmlspecialchars(…)</code></td><td>取引先名を安全な形にして、金額と一緒に表示する</td><td>9</td></tr>
+    <tr><td>最後の <code>echo</code></td><td>繰り返しが終わった後に、合計を1回だけ表示する</td><td>2</td></tr>
+  </table></div></details>
+  <div class="quiz" data-q="10a"></div>
+
+  <h3>AIと一緒にPHPを読むときのコツ</h3>
+  <p>知らない書き方に出会ったら、AIに説明してもらうのが近道です。そのときは、コードを貼り付けて次のように頼むと、分かりやすい答えが返ってきます。</p>
+  <div class="prompt"><p>次のPHPのコードを、プログラミング未経験の経理担当者にも分かるように、1行ずつ日本語で説明してください。</p><button class="copy" type="button">コピー</button></div>
+  <div class="prompt"><p>このPHPのコードに、XSS・SQLインジェクション・パスワードの扱いなど、安全面の問題がないか確認してください。問題があれば、直したコードも見せてください。</p><button class="copy" type="button">コピー</button></div>
+  <div class="prompt"><p>このコードで金額を計算している部分について、小数の誤差や端数処理（切り捨て・四捨五入）に問題がないか確認してください。</p><button class="copy" type="button">コピー</button></div>
+  <div class="tip warn"><b>AIが書いたコードで、最低限確かめる3点</b>
+    ① 入力された値を表示する所に <code>htmlspecialchars</code> があるか　② SQLに入力値を <code>.</code> でつないでいないか　③ 金額の計算で端数処理がはっきりしているか。<br>分からないときは「読めないので確認してほしい」とエンジニアに相談することも、立派な判断です。</div>
+  <div class="quiz" data-q="10b"></div>
+  <div class="summary"><b>まとめ</b><ul><li>変数・配列・条件分岐・ループ・関数の組み合わせで、プログラムはできている</li><li>読むときは「データ → 繰り返し → 条件 → 表示」の順に追う</li><li>AIには「1行ずつ説明して」「安全面を確認して」と頼む</li></ul></div>
+  <div class="ch-foot"></div>
+</div></section>
+
+<section class="band alt" id="glossary"><div class="wrap read">
+  <div class="label">用語集</div>
+  <h2>よく出てくる言葉</h2>
+  <dl class="glossary">
+    <dt>サーバー</dt><dd>インターネットの向こうで、ページを作って返すコンピューター。PHPはここで動く</dd>
+    <dt>ブラウザ</dt><dd>ChromeやSafariなど、Webページを見るためのソフト</dd>
+    <dt>HTML</dt><dd>ページの文章や見出しなど、見た目の骨組みを書く言語</dd>
+    <dt>echo</dt><dd>画面に文字を表示する命令</dd>
+    <dt>変数</dt><dd><code>$</code> で始まる、値を入れておく名前付きの箱</dd>
+    <dt>文字列</dt><dd>引用符で囲まれた文字のデータ</dd>
+    <dt>真偽値</dt><dd><code>true</code>（はい）か <code>false</code>（いいえ）の2択のデータ</dd>
+    <dt>配列</dt><dd>複数の値を順番に並べてまとめたもの。番号は0から</dd>
+    <dt>連想配列</dt><dd>名前（キー）で値を取り出せる配列</dd>
+    <dt>条件分岐</dt><dd><code>if</code> を使い、条件によって処理を変えること</dd>
+    <dt>ループ</dt><dd>同じ処理を繰り返すこと。<code>foreach</code> など</dd>
+    <dt>関数</dt><dd>処理に名前を付けたもの。引数を受け取り、戻り値を返す</dd>
+    <dt>引数・戻り値</dt><dd>関数に渡す材料と、関数が返す結果</dd>
+    <dt>POST・GET</dt><dd>フォームの値を送る2つの方法。GETはURLに値が付く</dd>
+    <dt>データベース</dt><dd>大量のデータを保存・検索する仕組み。SQLで操作する</dd>
+    <dt>XSS</dt><dd>入力に仕込まれたプログラムが画面上で動いてしまう攻撃</dd>
+    <dt>SQLインジェクション</dt><dd>入力によってデータベースへの命令文を書き換える攻撃</dd>
+    <dt>フレームワーク</dt><dd>よく使う仕組みをまとめた開発の土台。PHPではLaravelなど</dd>
+  </dl>
+</div></section>
+
+<section class="band"><div class="wrap closing">
+  <div class="label">おつかれさまでした</div>
+  <h2>次は、身近なPHPを<br>のぞいてみましょう。</h2>
+  <p class="read">WordPressのテーマファイルや、社内システムのコードを開いて、<code>$</code>・<code>if</code>・<code>foreach</code>・<code>echo</code> を探してみてください。全部は分からなくても「ここで条件を分けている」「ここで一覧を繰り返している」と分かれば、この教材の目標は達成です。</p>
+  <div class="actions"><a class="btn btn-p" href="#ch10">第10章のコードをもう一度読む</a><a class="btn btn-s" href="#flow">目次で進み具合を確かめる</a></div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p><b>はじめてのPHP</b>　非エンジニアのための、2時間で「読める」ようになるPHP入門</p>
+  <p>教材内の会社名・金額はすべて架空のものです。PHPの利用割合などの数値は、公開されている調査（W3Techs など）にもとづくおおよその値です。</p>
+</div></footer>
+
+<script>
+const QUIZ = {
+  "1a":{q:"PHPのプログラムは、どこで動いていますか？",c:["Webページを見ている人のパソコン","サーバー（インターネットの向こうにあるコンピューター）","スマートフォンのアプリの中"],a:1,e:"PHPはサーバーで動き、組み立てたページ（HTML）だけをブラウザに送ります。見ている人のパソコンにPHPは不要です。"},
+  "1b":{q:"次のうち、PHPで作られている代表的なものはどれですか？",c:["Excel","WordPress","Photoshop"],a:1,e:"WordPressはPHPで作られています。ExcelやPhotoshopはパソコンにインストールして使うソフトで、PHPではありません。"},
+  "2a":{q:"PHPで作られたページで、ブラウザの「ページのソースを表示」を使うと、PHPのコードは見えますか？",c:["見える","見えない（結果のHTMLだけが見える）","半分だけ見える"],a:1,e:"PHPはサーバーで実行され、結果の文字に置き換わってから届きます。だからPHPのコードはブラウザからは見えません。"},
+  "2b":{q:"次のコードを実行すると、何が表示されますか？",code:'echo "請求書"; // 発行済み',c:["請求書","請求書 // 発行済み","発行済み"],a:0,e:"// から後ろはメモ（コメント）なので実行されません。表示されるのは「請求書」だけです。"},
+  "3a":{q:"次のコードを実行すると、何が表示されますか？",code:'$a = 100;\n$a = 200;\necho $a;',c:["100","200","100200"],a:1,e:"同じ箱に新しい値を入れると、前の値は上書きされます。最後に入れた200が表示されます。"},
+  "3b":{q:"次のうち、「文字列」として扱われるのはどれですか？",c:['$x = 100;','$x = "100";','$x = true;'],a:1,e:"引用符で囲まれた \"100\" は文字列です。囲まれていない 100 は整数、true は真偽値です。"},
+  "4a":{q:"次のコードを実行すると、何が表示されますか？",code:'echo "10" . "5";',c:["15","105","エラーになる"],a:1,e:"「.」は文字をつなぐ記号なので、10 と 5 がつながって 105 になります。足し算は + です。"},
+  "4b":{q:"次のコードを実行すると、何が表示されますか？",code:'$total = 1234567;\necho number_format($total) . "円";',c:["1234567円","1,234,567円","1,234,567"],a:1,e:"number_format でカンマが付き、「.」で「円」がつながります。"},
+  "5a":{q:"$total が 7000 のとき、$shipping はいくらになりますか？",code:'if ($total >= 10000) {\n    $shipping = 0;\n} elseif ($total >= 5000) {\n    $shipping = 300;\n} else {\n    $shipping = 500;\n}',c:["0","300","500"],a:1,e:"7000は10000以上ではないので最初は外れ、次の「5000以上」に当てはまるので300になります。else までは進みません。"},
+  "5b":{q:"= と === の違いとして正しいのはどれですか？",c:["どちらも「等しいか比べる」","= は「値を入れる」、=== は「等しいか比べる」","= は「比べる」、=== は「値を入れる」"],a:1,e:"= は右の値を左の変数に入れる記号、=== は種類まで含めて等しいかを比べる記号です。"},
+  "6a":{q:"次のコードを実行すると、何が表示されますか？",code:'$items = ["コピー用紙", "ボールペン", "クリアファイル"];\necho $items[1];',c:["コピー用紙","ボールペン","クリアファイル"],a:1,e:"配列の番号は0から数えるので、[1] は2件目の「ボールペン」です。"},
+  "6b":{q:"次のコードを実行すると、何が表示されますか？",code:'$list = [3, 5, 2];\n$sum = 0;\nforeach ($list as $n) {\n    $sum = $sum + $n;\n}\necho $sum;',c:["3","10","352"],a:1,e:"3、5、2 を1件ずつ足していくので、合計は10です。"},
+  "7a":{q:"関数の中にある return の役割はどれですか？",c:["関数を最初からやり直す","関数の結果を、呼び出した所へ返す","画面に表示する"],a:1,e:"return は結果（戻り値）を返す命令です。画面に表示するのは echo の役割です。"},
+  "7b":{q:"次のコードを実行すると、何が表示されますか？",code:'function double($n) {\n    return $n * 2;\n}\necho double(double(3));',c:["6","12","9"],a:1,e:"内側の double(3) が 6 を返し、その 6 を外側の double に渡すので 12 になります。"},
+  "8a":{q:"フォームの入力欄が <input name=\"email\"> のとき、POSTで送られた値をPHPで受け取る書き方はどれですか？",c:['$email','$_POST["email"]','$_GET["mail"]'],a:1,e:"POSTで送られた値は $_POST に、入力欄の name と同じ名前で入っています。"},
+  "8b":{q:"ログイン画面でパスワードを送るのに適した送り方はどれですか？",c:["GET（URLに付けて送る）","POST（見えない形で送る）","どちらでも同じ"],a:1,e:"GETは値がURLに付き、閲覧履歴などに残ります。パスワードや個人情報はPOSTで送ります。"},
+  "9a":{q:"次のうち、XSSの対策として正しいのはどれですか？",c:['echo $_POST["name"];','echo htmlspecialchars($_POST["name"], ENT_QUOTES, "UTF-8");','echo "$_POST";'],a:1,e:"利用者が入力した値は、htmlspecialchars を通して無害な文字に変えてから表示します。"},
+  "9b":{q:"次のコードについて、正しい説明はどれですか？",code:'$sql = "DELETE FROM orders WHERE id = " . $_GET["id"];',c:["安全な書き方である","SQLインジェクションの危険がある","XSSの危険だけがある"],a:1,e:"入力値（$_GET）を「.」でSQLに直接つないでいます。prepare と ? を使った書き方に直すべきです。"},
+  "10a":{q:"第10章の unpaid.php を実行すると、最後の行には何が表示されますか？",c:["未入金の合計：160,000円","未入金の合計：110,000円","未入金の合計：78,000円"],a:1,e:"paid が false なのは有明フーズ（32,000円）と唐津工業（78,000円）の2件です。合計は110,000円です。"},
+  "10b":{q:"AIが書いたコードに echo $_POST[\"company\"]; という行がありました。まず何を確認しますか？",c:["変数名が英語かどうか","htmlspecialchars を通しているかどうか","行の最後に空白があるかどうか"],a:1,e:"入力された値をそのまま表示するとXSSの危険があります。htmlspecialchars を通しているかを確かめましょう。"}
+};
+
+const KEY = "hajimete-php-done";
+function loadDone(){ try{ return new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); }catch(e){ return new Set(); } }
+function saveDone(s){ try{ localStorage.setItem(KEY, JSON.stringify([...s])); }catch(e){} }
+let done = loadDone();
+const chapters = [...document.querySelectorAll(".chapter")];
+
+// 確認問題を描画する
+document.querySelectorAll(".quiz").forEach(box => {
+  const id = box.dataset.q, d = QUIZ[id];
+  const no = id.replace(/\D/g, ""), sub = id.endsWith("a") ? 1 : 2;
+  box.innerHTML = "";
+  const h = document.createElement("div"); h.className = "qh"; h.textContent = `確認問題 ${no}-${sub}`;
+  const t = document.createElement("p"); t.className = "qt"; t.textContent = d.q;
+  box.append(h, t);
+  if (d.code){ const p = document.createElement("pre"); p.className = "code"; p.textContent = d.code; box.append(p); }
+  const ch = document.createElement("div"); ch.className = "choices"; ch.setAttribute("role","group"); ch.setAttribute("aria-label","選択肢");
+  const ex = document.createElement("div"); ex.className = "explain"; ex.hidden = true; ex.setAttribute("aria-live","polite");
+  d.c.forEach((label, i) => {
+    const b = document.createElement("button"); b.type = "button"; b.id = `q${id}-${i}`;
+    b.innerHTML = `<span class="k">${"ABC"[i]}</span><span></span>`; b.lastChild.textContent = label;
+    b.addEventListener("click", () => {
+      ch.querySelectorAll("button").forEach((x, j) => { x.disabled = true; if (j === d.a) x.classList.add("right"); });
+      const ok = i === d.a; if (!ok) b.classList.add("wrong");
+      ex.innerHTML = `<b class="${ok ? "okm" : "ngm"}">${ok ? "正解です。" : "残念、正解は " + "ABC"[d.a] + " です。"}</b> `;
+      ex.append(document.createTextNode(d.e));
+      const r = document.createElement("button"); r.className = "retry"; r.type = "button"; r.textContent = "もう一度解く";
+      r.addEventListener("click", () => { ch.querySelectorAll("button").forEach(x => { x.disabled = false; x.classList.remove("right","wrong"); }); ex.hidden = true; });
+      ex.append(document.createElement("br"), r); ex.hidden = false;
+    });
+    ch.append(b);
+  });
+  box.append(ch, ex);
+});
+
+// 章末の読了ボタンと次の章へのリンク
+chapters.forEach((sec, idx) => {
+  const n = sec.dataset.ch, foot = sec.querySelector(".ch-foot");
+  const b = document.createElement("button"); b.type = "button"; b.className = "btn btn-s done-btn"; b.id = "done-" + n;
+  b.addEventListener("click", () => { done.has(n) ? done.delete(n) : done.add(n); saveDone(done); render(); });
+  foot.append(b);
+  const next = chapters[idx + 1];
+  const a = document.createElement("a"); a.className = "btn btn-p";
+  if (next){ a.href = "#" + next.id; a.textContent = `第${next.dataset.ch}章「${next.dataset.title}」へ進む`; }
+  else { a.href = "#glossary"; a.textContent = "用語集で振り返る"; }
+  foot.append(a);
+});
+
+// 目次を作る
+document.querySelectorAll("#toc ol").forEach(ol => {
+  ol.dataset.chs.split(",").forEach(n => {
+    const sec = document.getElementById("ch" + n);
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="#ch${n}"><span class="chk" aria-hidden="true"></span><span class="no">${String(n).padStart(2,"0")}</span><span class="ttl"></span><span class="min">${sec.dataset.min}分</span></a>`;
+    li.querySelector(".ttl").textContent = sec.dataset.title;
+    li.dataset.n = n; ol.append(li);
+  });
+});
+
+function render(){
+  chapters.forEach(sec => {
+    const n = sec.dataset.ch, b = sec.querySelector(".done-btn"), on = done.has(n);
+    b.setAttribute("aria-pressed", on); b.textContent = on ? "✓ 読み終えました（取り消す）" : "この章を読み終えた";
+  });
+  document.querySelectorAll("#toc li").forEach(li => { li.querySelector(".chk").textContent = done.has(li.dataset.n) ? "✓" : ""; });
+  document.getElementById("meterText").textContent = `${done.size}/10章`;
+  document.getElementById("meterBar").style.width = (done.size * 10) + "%";
+}
+render();
+
+// プロンプトのコピー
+document.querySelectorAll(".copy").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const text = btn.previousElementSibling.textContent;
+    const ok = () => { btn.textContent = "コピーしました"; setTimeout(() => btn.textContent = "コピー", 1800); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(btn.previousElementSibling); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "選択しました"; };
+    try { navigator.clipboard.writeText(text).then(ok, fallback); } catch(e){ fallback(); }
+  });
+});
+</script>
+</body>
+</html>
